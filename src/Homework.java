@@ -15,12 +15,7 @@ public class Homework extends SuperKarel {
     }
     
     private int calcWidth(){
-      int counter=1;
-      while(frontIsClear()){
-        move();
-        counter++;
-      }
-      return counter;
+      return calcAndPutBeeper(false);
     }
     
     private void moveToCenterCol(int width){
@@ -30,14 +25,8 @@ public class Homework extends SuperKarel {
     }
     
     private int calcAndFillHeight(){
-      int counter=1;
       putBeeper();
-      while(frontIsClear()){
-        move();
-        putBeeper();
-        counter++;
-      }
-      return counter;
+      return calcAndPutBeeper(true);
     }
     
     private void moveToSquareStart(int width,int height){
@@ -81,6 +70,18 @@ public class Homework extends SuperKarel {
           putBeeper();
         }
       }
+    }
+    
+    private int calcAndPutBeeper(boolean beeper){
+      int counter=1;
+      while(frontIsClear()){
+        move();
+        if(beeper){
+          putBeeper();
+        }
+        counter++;
+      }
+      return counter;
     }
 
 }
