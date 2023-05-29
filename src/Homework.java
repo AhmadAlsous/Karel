@@ -6,14 +6,11 @@ public class Homework extends SuperKarel {
   private int width; // map width
   private int squareLength; // length of the square that is formed by the 4 inner chambers
   
-  // the run method specifies what karel does after pressing start program
+  // the run method specifies what karel does after pressing Start Program
   public void run() {
     initialize();
     this.width = calcWidth();
     this.height = calcAndFillHeight();
-    if (isSmallMap()) {
-      return;
-    }
     this.squareLength = Math.min(this.width, this.height) - 2; // calculate square length
     fillInnerChambers();
     fillHorizontalOuterChambers();
@@ -39,16 +36,6 @@ public class Homework extends SuperKarel {
       handleEven(height - 1);
     }
     return height;
-  }
-  
-  // handle special cases (small maps)
-  private boolean isSmallMap() {
-    // 5 is the smallest length allowed: 1 outer + 2 inner + 2 spaces away from walls
-    if (this.width < 5 || this.height < 5) {
-      System.out.println("The map is too small, width and height should be greater than 4.");
-      return true;
-    }
-    return false;
   }
   
   private void fillInnerChambers() {
@@ -86,6 +73,7 @@ public class Homework extends SuperKarel {
       }
       counter++;
     }
+    handleSmallMap(counter); // to check if either width or height are too small
     return counter;
   }
   
@@ -96,18 +84,32 @@ public class Homework extends SuperKarel {
     turnRight();
   }
   
+  // handle special cases (small maps)
+  private void handleSmallMap(int length) {
+    // 5 is the smallest length allowed: 1 outer + 2 inner + 2 spaces away from walls
+    if (length < 5) {
+      throw new IllegalStateException("The map is too small, both width and height should be greater than 4.");
+    }
+  }
+  
   // moves karel to the inner chambers start (to start filling the inner chambers)
   private void moveToSquareStart() {
     turnAround();
     // since the inner chambers can't be adjacent to the walls, we move at least one from
     // the top/bottom wall, more if width is greater than height
     int steps = this.width >= this.height ? 1 : (this.height - this.width) / 2 + 1;
+    if (isHeightOddAndBigger()) { // handle special cases
+      steps++;
+    }
     moveMultiple(steps);
     turnLeft();
   }
   
   private void fillSquareSide(int side) { // fills one side of the square
     int steps = this.squareLength - 1;
+    if (isHeightOddAndBigger() || isWidthOddAndBigger()) { // handle special cases
+      steps--;
+    }
     // cover the cases where only one of the width and height are even
     if (isEven(this.height) && !isEven(this.width) && side % 2 == 0) {
       steps++;
@@ -152,6 +154,16 @@ public class Homework extends SuperKarel {
     move();
     putBeeper();
     turnLeft();
+  }
+  
+  // the two methods below check for the case where the bigger dimension is odd and the
+  // other one is even, which breaks the program, so they have to be handled separately
+  private boolean isHeightOddAndBigger() {
+    return (this.height > this.width && !isEven(this.height) && isEven(this.width));
+  }
+  
+  private boolean isWidthOddAndBigger() {
+    return (this.width > this.height && !isEven(this.width) && isEven(this.height));
   }
   
   // override the move method to print a counter each time karel moves
